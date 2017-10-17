@@ -161,22 +161,23 @@ public class CompassViewForMIUI extends View {
         super.onDraw(canvas);
 
         //绘制圆弧
-        canvas.drawArc(
-                x - r - mLineLength - 15,
-                y - r - mLineLength - 15,
-                x + r + mLineLength + 15,
-                y + r + mLineLength + 15,
-                -90,
-                rotate < 180 ? -rotate + 5 : 360 - rotate + 5, false, mRedPaint);
+//        canvas.drawArc(
+//                x - r - mLineLength - 15,
+//                y - r - mLineLength - 15,
+//                x + r + mLineLength + 15,
+//                y + r + mLineLength + 15,
+//                -90,
+//                rotate < 180 ? -rotate + 5 : 360 - rotate + 5, false, mRedPaint);
 
+        int tt = rotate < 180 ? -rotate : 360 - rotate;
         //绘制圆弧
         canvas.drawArc(
                 x - r - mLineLength - 15,
                 y - r - mLineLength - 15,
                 x + r + mLineLength + 15,
                 y + r + mLineLength + 15,
-                -90,
-                rotate < 180 ? 360 - rotate -5 : -rotate + 5, false, mGeyPaint);
+                -90 + tt+5 ,
+                350, false, mGeyPaint);
 
         /*
         x - r - mLineLength - 5 + mLineLength / 2
@@ -208,7 +209,7 @@ public class CompassViewForMIUI extends View {
                 //绘制三角形
                 mPath.moveTo(x - mLineLength, y - r - mLineLength - 15);
                 mPath.lineTo(x + mLineLength, y - r - mLineLength - 15);
-                mPath.lineTo(x, (float) (y - r - mLineLength - mLineLength * Math.sqrt(3)));
+                mPath.lineTo(x, y - r - mLineLength - 30);
                 canvas.drawPath(mPath, mPaint);
             }
             if (i % 90 == 0) {
