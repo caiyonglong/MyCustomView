@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#2979FF</color>
+    <color name="colorPrimaryDark">#2962FF</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="blue_grey_900">#263238</color>
+
+
+    <color name="fail">#F44336</color>
+    <color name="pass">#4CAF50</color>
+
+    <color name="orange">#FF9100</color>
+    <color name="yellow_A400">#FFEA00</color>
+    <color name="deep_orange_A400">#FF3D00</color>
+    <color name="green_A700">#28a745</color>
+    <color name="purple_A400">#D500F9</color>
+    <color name="shadow_purple">#EE7AE9</color>
+
+    <color name="shadow_yellow">#ffffcc</color>
+    <color name="orange_yellow">#FFB90F</color>
+</resources>

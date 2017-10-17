@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CompassViewForMIUI">
+        <attr name="lineColor" format="color" />
+        <attr name="keyLineColor" format="color" />
+        <attr name="mainLineColor" format="color" />
+
+        <attr name="mDegreeSize" format="dimension" />
+        <attr name="mAngleSize" format="dimension" />
+        <attr name="mTextSize" format="dimension" />
+        <attr name="mCount" format="integer" />
+
+        <attr name="mLineLength" format="dimension" />
+        <attr name="mainLineLength" format="dimension" />
+
+    </declare-styleable>
+</resources>
