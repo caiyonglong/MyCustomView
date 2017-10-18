@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -102,6 +103,7 @@ public class CompassViewForMIUI extends View {
 
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
+        mPaint.setStrokeWidth(5);
         mPaint.setColor(Color.parseColor("#F44336"));
         mPaint.setStyle(Paint.Style.FILL);
 
@@ -156,40 +158,65 @@ public class CompassViewForMIUI extends View {
 
     }
 
+    float sweepHAngle = 0;
+    float startHAngle = -90;
+    float startAngle = -90;
+    float sweepAngle = 0;
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        //绘制圆弧
-//        canvas.drawArc(
-//                x - r - mLineLength - 15,
-//                y - r - mLineLength - 15,
-//                x + r + mLineLength + 15,
-//                y + r + mLineLength + 15,
-//                -90,
-//                rotate < 180 ? -rotate + 5 : 360 - rotate + 5, false, mRedPaint);
+        if (rotate <= 180) {
+            startHAngle = -91;
+            sweepHAngle = -rotate + 5;
 
-        int tt = rotate < 180 ? -rotate : 360 - rotate;
-        //绘制圆弧
-        canvas.drawArc(
-                x - r - mLineLength - 15,
-                y - r - mLineLength - 15,
-                x + r + mLineLength + 15,
-                y + r + mLineLength + 15,
-                -90 + tt+5 ,
-                350, false, mGeyPaint);
+            startAngle = -89;
+            sweepAngle = 360 - rotate - 5;
 
-        /*
-        x - r - mLineLength - 5 + mLineLength / 2
-        y - r - mLineLength - 5
-        x + r + mLineLength + 5 - mLineLength / 2
-        y + r + mLineLength + 5
-         */
+        } else {
+            startHAngle = -89;
+            sweepHAngle = 360 - rotate - 5;
 
+            startAngle = -91;
+            sweepAngle = -rotate + 5;
+        }
 
-//        canvas.drawCircle(x, y, r, mRedPaint);
-//        canvas.drawCircle(x, y, r + mLineLength, mRedPaint);
-//        canvas.drawCircle(x, y, r + mMainLineLength, mRedPaint);
+        if (rotate > 5 && rotate < 355) {
+            //绘制红色圆弧
+            canvas.drawArc(
+                    x - r - mLineLength - 15,
+                    y - r - mLineLength - 15,
+                    x + r + mLineLength + 15,
+                    y + r + mLineLength + 15,
+                    startHAngle,
+                    sweepHAngle, false, mRedPaint);
+            //绘制灰色圆弧
+            canvas.drawArc(
+                    x - r - mLineLength - 15,
+                    y - r - mLineLength - 15,
+                    x + r + mLineLength + 15,
+                    y + r + mLineLength + 15,
+                    startAngle,
+                    sweepAngle, false, mGeyPaint);
+
+        } else {
+            float tt = 0;
+            if (rotate <= 5) {
+                tt = 5 - rotate;
+            } else if (rotate >= 355) {
+                tt = 360 - rotate + 5;
+            }
+            //绘制灰色圆弧
+            canvas.drawArc(
+                    x - r - mLineLength - 15,
+                    y - r - mLineLength - 15,
+                    x + r + mLineLength + 15,
+                    y + r + mLineLength + 15,
+                    -90 + tt,
+                    350, false, mGeyPaint);
+        }
+
         //绘制标尺
 //        canvas.drawLine(x, y - r, x, y - r - mMainLineLength, mMainLinePaint);
         //保存图层
@@ -206,10 +233,11 @@ public class CompassViewForMIUI extends View {
         //绘制刻度
         for (int i = 0; i < mCount; i++) {
             if (i == 0) {
+
                 //绘制三角形
-                mPath.moveTo(x - mLineLength, y - r - mLineLength - 15);
-                mPath.lineTo(x + mLineLength, y - r - mLineLength - 15);
-                mPath.lineTo(x, y - r - mLineLength - 30);
+                mPath.moveTo(x - calculateLength(4, r), y - r - mLineLength - 15);
+                mPath.lineTo(x + calculateLength(4, r), y - r - mLineLength - 15);
+                mPath.lineTo(x, y - r - mLineLength - 2 * calculateLength(4, r));
                 canvas.drawPath(mPath, mPaint);
             }
             if (i % 90 == 0) {
@@ -256,8 +284,14 @@ public class CompassViewForMIUI extends View {
 
         canvas.restore();
 
+        Matrix matrix =new Matrix();
+
     }
 
+    //计算角度数值的起始坐标
+    private float calculateLength(float angle, float r) {
+        return (float) (r * Math.sin(Math.PI * angle / 180));
+    }
 
     //计算角度数值的起始坐标
     private float[] calculatePoint(float angle, float r) {

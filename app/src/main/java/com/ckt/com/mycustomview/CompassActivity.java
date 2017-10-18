@@ -7,7 +7,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -28,11 +27,11 @@ public class CompassActivity extends AppCompatActivity {
      */
     private Sensor aSensor;
     private Sensor mSensor;
+    private Sensor oSensor;
     private SensorManager sm;
     /**
      * 数据
      */
-    private Vibrator mVibrator;
     protected final Handler mHandler = new Handler();
     //精确值次数
     private static final int MAX_ACCURATE_COUNT = 20;
@@ -77,7 +76,6 @@ public class CompassActivity extends AppCompatActivity {
             resetAccurateCount();
         } else {
             Toast.makeText(this, R.string.calibrate_success, Toast.LENGTH_SHORT).show();
-            mVibrator.vibrate(200);
             resetInaccurateCount();
         }
     }
@@ -97,10 +95,10 @@ public class CompassActivity extends AppCompatActivity {
 
     private void initData() {
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mInterpolator = new AccelerateInterpolator();
         mSensor = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         aSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        oSensor = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);
     }
 
     /***
@@ -122,7 +120,8 @@ public class CompassActivity extends AppCompatActivity {
         mStopDrawing = false;
         sm.registerListener(listener, mSensor, SensorManager.SENSOR_DELAY_GAME);
         sm.registerListener(listener, aSensor, SensorManager.SENSOR_DELAY_GAME);
-        mHandler.postDelayed(mCompassViewUpdater, 20);
+        sm.registerListener(listener, oSensor, SensorManager.SENSOR_DELAY_GAME);
+//        mHandler.postDelayed(mCompassViewUpdater, 20);
     }
 
 
@@ -140,6 +139,30 @@ public class CompassActivity extends AppCompatActivity {
                 mTvAccuracy.setText(getResources().getString(R.string.accuracy_compass, event.accuracy));
                 magneticFieldValues = event.values;
                 mMagneticFieldAccuracy = event.accuracy;
+
+                if (mCompassViewForMIUI != null && !mStopDrawing) {
+                    //计算当前方向
+                    calculateTargetDirection();
+                    if (mDirection != mTargetDirection) {
+                        // 计算指南针旋转
+                        float to = mTargetDirection;
+                        // 限制最大旋转速度为 MAX_ROTATE_DEGREE
+                        float distance = to - mDirection;
+                        if (Math.abs(distance) > MAX_ROATE_DEGREE) {
+                            distance = distance > 0 ? MAX_ROATE_DEGREE : (-1.0f * MAX_ROATE_DEGREE);
+                        }
+                        //如果distance太小，减低旋转速度
+                        mDirection = mDirection
+                                + ((to - mDirection) * mInterpolator.getInterpolation(Math.abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f));
+
+                        Log.e(TAG, "TYPE_ORIENTATION角度--：" + mTargetDirection);
+                        mCompassViewForMIUI.setRotate(Math.round(mTargetDirection));
+                    }
+//                    mHandler.postDelayed(mCompassViewUpdater, 20);
+                }
+            }
+            if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+                Log.e(TAG, "TYPE_ORIENTATION角度：" + event.values[0]);
             }
         }
 
