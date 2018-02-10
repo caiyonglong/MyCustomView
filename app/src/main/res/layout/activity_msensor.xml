@@ -5,17 +5,18 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <com.ckt.com.mycustomview.CompassViewForMIUI
+    <com.ckt.mycustomview.compass.CompassViewForMIUI
         android:id="@+id/cv_compass"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_centerInParent="true"
         android:elevation="8dp"
         app:keyLineColor="@color/white"
         app:lineColor="#ECEFF1"
         app:mAngleSize="10sp"
-        app:mCount="360"
-        app:mDegreeSize="30sp"
-        app:mLineLength="14dp"
+        app:mCount="120"
+        app:mDegreeSize="25sp"
+        app:mLineLength="12dp"
         app:mTextSize="18sp"
         app:mainLineColor="@color/white"
         app:mainLineLength="30dp" />

@@ -1,16 +1,17 @@
-package com.ckt.com.mycustomview;
+package com.ckt.mycustomview.compass;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.ckt.mycustomview.R;
 
 /**
  * Created by D22434 on 2017/8/25.
@@ -50,6 +51,7 @@ public class CompassViewForMIUI extends View {
     public void setRotate(int rotate) {
         curDegree = rotate;
         this.rotate = Math.round(rotate);//采用round方式转换为整型
+        postInvalidate();
         invalidate();
     }
 
@@ -77,8 +79,10 @@ public class CompassViewForMIUI extends View {
         mCircleRadius = mLineLength;
 
         mLinePaint = new Paint();
+        mLinePaint.setDither(true);
         mLinePaint.setColor(lineColor);
         mLinePaint.setAntiAlias(true);
+        mLinePaint.setStrokeJoin(Paint.Join.ROUND);
         mLinePaint.setStyle(Paint.Style.STROKE);
 
 
@@ -110,14 +114,14 @@ public class CompassViewForMIUI extends View {
         mRedPaint = new Paint();
         mRedPaint.setAntiAlias(true);
         mRedPaint.setStrokeCap(Paint.Cap.ROUND);
-        mRedPaint.setStrokeWidth(5);
+        mRedPaint.setStrokeWidth(4);
         mRedPaint.setColor(Color.parseColor("#F44336"));
         mRedPaint.setStyle(Paint.Style.STROKE);
 
 
         mGeyPaint = new Paint();
         mGeyPaint.setAntiAlias(true);
-        mGeyPaint.setStrokeWidth(5);
+        mGeyPaint.setStrokeWidth(4);
         mGeyPaint.setStrokeCap(Paint.Cap.ROUND);
         mGeyPaint.setColor(Color.parseColor("#BDBDBD"));
         mGeyPaint.setStyle(Paint.Style.STROKE);
@@ -233,58 +237,69 @@ public class CompassViewForMIUI extends View {
         //绘制刻度
         for (int i = 0; i < mCount; i++) {
             if (i == 0) {
-
                 //绘制三角形
                 mPath.moveTo(x - calculateLength(4, r), y - r - mLineLength - 15);
                 mPath.lineTo(x + calculateLength(4, r), y - r - mLineLength - 15);
                 mPath.lineTo(x, y - r - mLineLength - 2 * calculateLength(4, r));
                 canvas.drawPath(mPath, mPaint);
+
+
             }
-            if (i % 90 == 0) {
+            if (i == 0) {
                 mLinePaint.setStrokeWidth(4);
                 canvas.drawLine(x, y - r, x, y - r - mLineLength, mLinePaint);
+                mAnglePaint.setTextSize(mTextSize);
+                drawDegree("N", canvas);
+            } else if (i == mCount / 4) {
+                mLinePaint.setStrokeWidth(4);
+                canvas.drawLine(x, y - r, x, y - r - mLineLength, mLinePaint);
+                drawDegree("E", canvas);
+            } else if (i == mCount / 2) {
+                mLinePaint.setStrokeWidth(4);
+                canvas.drawLine(x, y - r, x, y - r - mLineLength, mLinePaint);
+                drawDegree("S", canvas);
+            } else if (i == mCount * 3 / 4) {
+                mLinePaint.setStrokeWidth(4);
+                canvas.drawLine(x, y - r, x, y - r - mLineLength, mLinePaint);
+                drawDegree("W", canvas);
             } else {
-                mLinePaint.setStrokeWidth(1);
+                mLinePaint.setStrokeWidth(3);
                 canvas.drawLine(x, y - r, x, y - r - mLineLength, mLinePaint);
             }
-
 
             canvas.rotate(360 / mCount, x, y);
         }
-
 //        //绘制文字.先旋转后还原，保持文字正常显示
-        for (int i = 0; i < 12; i++) {
-            degree = i * 30 + "°";
-            temp = calculatePoint(30 * i, r - mCircleRadius * 2);
-            if (i == 0) {
-                degree = "北";
-                mAnglePaint.setTextSize(mTextSize);
-            } else if (i == 3) {
-                degree = "东";
-                mAnglePaint.setTextSize(mTextSize);
-            } else if (i == 6) {
-                degree = "南";
-                mAnglePaint.setTextSize(mTextSize);
-            } else if (i == 9) {
-                degree = "西";
-                mAnglePaint.setTextSize(mTextSize);
-            } else {
-                mAnglePaint.setTextSize(mAngleSize);
-            }
+//        for (int i = 0; i < mCount; i++) {
+//            degree = i * 30 + "°";
+//            temp = calculatePoint(30 * i, r - mCircleRadius * 2);
+//            if (i == 0) {
+//                degree = "北";
+//                mAnglePaint.setTextSize(mTextSize);
+//            } else if (i == 3) {
+//                degree = "东";
+//                mAnglePaint.setTextSize(mTextSize);
+//            } else if (i == 6) {
+//                degree = "南";
+//                mAnglePaint.setTextSize(mTextSize);
+//            } else if (i == 9) {
+//                degree = "西";
+//                mAnglePaint.setTextSize(mTextSize);
+//            } else {
+//                mAnglePaint.setTextSize(mAngleSize);
+//            }
 
-            //绘制旋转的度数
-            if (rotate != 0) {
-                canvas.rotate(rotate, x + temp[1], y - temp[0]);
-            }
-            canvas.drawText(degree, x + temp[1] - mAnglePaint.measureText(degree) / 2, y - temp[0] + mAnglePaint.getTextSize() / 2, mAnglePaint);
-            if (rotate != 0) {
-                canvas.rotate(-rotate, x + temp[1], y - temp[0]);
-            }
-        }
+        //绘制旋转的度数
+//            if (rotate != 0) {
+//                canvas.rotate(rotate, x + temp[1], y - temp[0]);
+//            }
+//            canvas.drawText(degree, x + temp[1] - mAnglePaint.measureText(degree) / 2, y - temp[0] + mAnglePaint.getTextSize() / 2, mAnglePaint);
+//            if (rotate != 0) {
+//                canvas.rotate(-rotate, x + temp[1], y - temp[0]);
+//            }
+//        }
 
         canvas.restore();
-
-        Matrix matrix =new Matrix();
 
     }
 
@@ -298,6 +313,13 @@ public class CompassViewForMIUI extends View {
         points[0] = (float) (r * Math.cos(Math.PI * angle / 180));
         points[1] = (float) (r * Math.sin(Math.PI * angle / 180));
         return points;
+    }
+
+    private void drawDegree(String mText, Canvas canvas) {
+        mAnglePaint.setTextSize(mTextSize);
+        mAnglePaint.getTextBounds(mText, 0, mText.length(), mRect);
+        canvas.drawText(mText, x - mAnglePaint.measureText(mText) / 2,
+                y - r + 10 + mRect.height() / 2, mAnglePaint);
     }
 
 }

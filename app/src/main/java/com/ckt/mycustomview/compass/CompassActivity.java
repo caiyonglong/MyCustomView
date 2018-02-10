@@ -1,4 +1,4 @@
-package com.ckt.com.mycustomview;
+package com.ckt.mycustomview.compass;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -14,6 +14,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ckt.mycustomview.R;
+
 public class CompassActivity extends AppCompatActivity {
 
     private static String TAG = "CompassActivity";
@@ -27,7 +29,6 @@ public class CompassActivity extends AppCompatActivity {
      */
     private Sensor aSensor;
     private Sensor mSensor;
-    private Sensor oSensor;
     private SensorManager sm;
     /**
      * 数据
@@ -98,32 +99,29 @@ public class CompassActivity extends AppCompatActivity {
         mInterpolator = new AccelerateInterpolator();
         mSensor = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         aSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        oSensor = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);
     }
 
     /***
-     * 在onStop中注销传感器的监听事件
+     * 注册传感器的监听事件
      */
     @Override
-    protected void onStop() {
-        super.onStop();
-        mStopDrawing = true;
-        sm.unregisterListener(listener);
-    }
-
-    /***
-     * 在onStart中注册传感器的监听事件
-     */
-    @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         mStopDrawing = false;
         sm.registerListener(listener, mSensor, SensorManager.SENSOR_DELAY_GAME);
         sm.registerListener(listener, aSensor, SensorManager.SENSOR_DELAY_GAME);
-        sm.registerListener(listener, oSensor, SensorManager.SENSOR_DELAY_GAME);
-//        mHandler.postDelayed(mCompassViewUpdater, 20);
+        mHandler.postDelayed(mCompassViewUpdater, 20);
     }
 
+    /***
+     * 注销传感器的监听事件
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mStopDrawing = true;
+        sm.unregisterListener(listener);
+    }
 
     /**
      * 传感器的监听对象
@@ -139,30 +137,6 @@ public class CompassActivity extends AppCompatActivity {
                 mTvAccuracy.setText(getResources().getString(R.string.accuracy_compass, event.accuracy));
                 magneticFieldValues = event.values;
                 mMagneticFieldAccuracy = event.accuracy;
-
-                if (mCompassViewForMIUI != null && !mStopDrawing) {
-                    //计算当前方向
-                    calculateTargetDirection();
-                    if (mDirection != mTargetDirection) {
-                        // 计算指南针旋转
-                        float to = mTargetDirection;
-                        // 限制最大旋转速度为 MAX_ROTATE_DEGREE
-                        float distance = to - mDirection;
-                        if (Math.abs(distance) > MAX_ROATE_DEGREE) {
-                            distance = distance > 0 ? MAX_ROATE_DEGREE : (-1.0f * MAX_ROATE_DEGREE);
-                        }
-                        //如果distance太小，减低旋转速度
-                        mDirection = mDirection
-                                + ((to - mDirection) * mInterpolator.getInterpolation(Math.abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f));
-
-                        Log.e(TAG, "TYPE_ORIENTATION角度--：" + mTargetDirection);
-                        mCompassViewForMIUI.setRotate(Math.round(mTargetDirection));
-                    }
-//                    mHandler.postDelayed(mCompassViewUpdater, 20);
-                }
-            }
-            if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-                Log.e(TAG, "TYPE_ORIENTATION角度：" + event.values[0]);
             }
         }
 
@@ -171,7 +145,6 @@ public class CompassActivity extends AppCompatActivity {
             if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
                 mTvAccuracy.setText(getResources().getString(R.string.accuracy_compass, accuracy));
             }
-            //当精准度改变时
         }
     };
 

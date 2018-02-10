@@ -1,4 +1,4 @@
-package com.ckt.com.mycustomview;
+package com.ckt.mycustomview;
 
 import org.junit.Test;
 
